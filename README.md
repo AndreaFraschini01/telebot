@@ -1,10 +1,9 @@
-# Test bot di telegram e repository remota
+# Bot di telegram [PROTOTIPO]
 
-Questo è un programma scritto in node.js per testare i **bot di telegram**, ricordarmi
-come si scrive in **markdown** un file readme e come funziona *github*.  
-Mi piace veramente tanto la semplicità con cui si riesce a scrivere un file di testo con markdown
+Questo è un programma scritto in node.js per testare **telegraf.js** (che permette di creare 
+bot di telegram) e per ricordarmi come funzionano GIT e *GitHub*.  
 
-## Cosa fa per adesso
+## Cosa fa per adesso il bot
 
 Essenzialmente ti "cita" i messaggi e te li salva in un database MongoDB.
 
