@@ -25,6 +25,6 @@ Il bot ti dice cosa può fare. Ovviamente.
 
 ## Cosa farà
 
-Le citazioni saranno salvate in un DB di MongoDB e sarà quindi necessario salvare
-una lista di citazioni per ogni gruppo e chat. Non so ancora come implementare questa cosa
-ma non dovrebbe essere difficile.
+Le citazioni per adesso vengono mostrate tutte se si fa il comando /list
+ma in futurò implementerò la paginazione e aggiungerò magari una funzione
+di ricerca.
