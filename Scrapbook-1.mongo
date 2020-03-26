@@ -1,0 +1,6 @@
+db.groups.insertMany(
+[
+    {},
+    {}
+]
+);

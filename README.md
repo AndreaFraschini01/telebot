@@ -6,9 +6,22 @@ Mi piace veramente tanto la semplicità con cui si riesce a scrivere un file di 
 
 ## Cosa fa per adesso
 
-Essenzialmente ti "cita" i messaggi. Rispondendo ad un qualsiasi messaggio con il comando /quote
-il bot invierà una citazione con tanto di autore, data e orario.
-Per adesso le citazioni non vengono salvate.
+Essenzialmente ti "cita" i messaggi e te li salva in un database MongoDB.
+
+### comando /quote
+
+Rispondendo ad un qualsiasi messaggio con questo comando
+il bot salva **testo**, **nome**, **cognome**, **data** e **ora** nel database e
+risponde con la citazione (se tutto è andato per il meglio).
+
+### comando /list
+
+Il bot risponde con un messaggio contenente tutta la lista delle citazioni
+del gruppo/chat.
+
+### comando /help
+
+Il bot ti dice cosa può fare. Ovviamente.
 
 ## Cosa farà
 
