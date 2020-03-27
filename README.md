@@ -11,7 +11,7 @@ Essenzialmente ti "cita" i messaggi e te li salva in un database MongoDB.
 
 Rispondendo ad un qualsiasi messaggio con questo comando
 il bot salva **testo**, **nome**, **cognome**, **data** e **ora** nel database e
-risponde con la citazione (se tutto è andato per il meglio).
+risponde con la citazione. È gestito il caso in cui la citazione sia già stata inserita.
 
 ### comando /list
 

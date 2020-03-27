@@ -28,16 +28,18 @@ bot.command('quote', (ctx)=>{
         data = `${data.toLocaleDateString()} ${data.toLocaleTimeString()}`
 
         //console.log(idChat);
-        ctx.replyWithMarkdown(`_${text}_\n- ${author.replace('_', ' ')} ${data}`);
-
         //INSERIRE NEL DATABASE SE IL GRUPPO È NUOVO
         //db.groups.update({_id: idChat}, { $push: { quotes: { text: text, author: from.username, date: date } } })
         db.inserisciCitazione(idChat, {text, author, date: data}, function(err, res){
             if(err){
                 console.log(err);
             }
-            else{
+            else if(res){
                 console.log(res);
+                ctx.replyWithMarkdown(`_${text}_\n- ${author.replace('_', ' ')} ${data}`);
+            }
+            else{
+                ctx.reply("Il messaggio è già stato citato");
             }
         });
     }else{
