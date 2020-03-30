@@ -30,12 +30,9 @@ bot.command('quote', (ctx)=>{
         //console.log(idChat);
         //INSERIRE NEL DATABASE SE IL GRUPPO È NUOVO
         //db.groups.update({_id: idChat}, { $push: { quotes: { text: text, author: from.username, date: date } } })
-        db.inserisciCitazione(idChat, {text, author, date: data}, function(err, res){
-            if(err){
-                console.log(err);
-            }
-            else if(res){
-                console.log(res);
+        db.inserisciCitazione(idChat, {text, author, date: data}, function(risultato){
+            console.log("Cosa è qui", risultato);
+            if(risultato == 0){
                 ctx.replyWithMarkdown(`_${text}_\n- ${author.replace('_', ' ')} ${data}`);
             }
             else{
@@ -51,7 +48,7 @@ bot.command('quote', (ctx)=>{
 bot.command('list', (ctx)=>{
     //console.log(ctx);
     console.log(ctx.chat.id);
-    var citazioni = db.listaCitazioni(ctx.chat.id, function(citazioni){
+    var citazioni = db.listaCitazioni(ctx.chat.id, 0,function(citazioni, next){
         let msg = "";
         if(citazioni){
             citazioni.forEach(cit => {
@@ -60,6 +57,9 @@ bot.command('list', (ctx)=>{
         }
         else{
             msg = "Non ci sono citazioni salvate in questa chat";
+        }
+        if(next){
+            msg += "PROSSIMO"
         }
         ctx.replyWithMarkdown(msg);
     });

@@ -11,8 +11,8 @@ exports.inserisciCitazione = function (idChat, quote, callback){
             console.log("Connessione al database stabilita");
             var db = client.db(process.env.DB_NAME);
             var groups = db.collection("groups");
-            alreadyExists(quote, function(error, result){
-                if(result){
+            alreadyExists(quote, function(result){
+                if(result==0){
                     groups.updateOne({_id: idChat}, 
                         { 
                             $push: { 
@@ -28,10 +28,10 @@ exports.inserisciCitazione = function (idChat, quote, callback){
                         }, 
                         function(err, res){
                             if(err){
-                                callback(error = err);
+                                callback(null);
                             }
                             else{
-                                callback(result = res);
+                                callback(result);
                             }
                             client.close();
                         }
@@ -46,7 +46,7 @@ exports.inserisciCitazione = function (idChat, quote, callback){
 }
 
 
-exports.listaCitazioni = function(idChat, callback){
+exports.listaCitazioni = function(idChat, pagina, callback){
     var mongoClient = mongodb.MongoClient(process.env.DB_URL, {useUnifiedTopology: true});
     mongoClient.connect(function(err, client){
         console.log("Recupero lista citazioni...")
@@ -64,7 +64,8 @@ exports.listaCitazioni = function(idChat, callback){
                 }
                 else{
                     if(res){
-                        callback(res.quotes);
+                        let next = res.quotes.slice((pagina+1)*5, 5+(pagina+1)*5);
+                        callback(res.quotes.slice(pagina*5, 5+pagina*5), next.length);
                     }
                     else{
                         callback(null);
@@ -93,10 +94,11 @@ function alreadyExists(citazione, callback){
             groups.find({ quotes: { $in: [ citazione ]}}).count(function(err, res){
                 if(err){
                     console.log("Errore nella query count o altro");
-                    callback(error = res);
+                    callback(null)
                 }
                 else{
-                    callback(result = res);
+                    console.log(res);
+                    callback(res);
                 }
             });
 
