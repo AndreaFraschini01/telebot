@@ -20,7 +20,7 @@ del gruppo/chat.
 
 ### comando /help
 
-Il bot ti dice cosa può fare. Ovviamente.
+Il bot ti dice cosa può fare.
 
 ## Cosa farà
 
