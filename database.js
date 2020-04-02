@@ -64,7 +64,8 @@ exports.listaCitazioni = function(idChat, pagina, callback){
                 }
                 else{
                     if(res){
-                        let next = res.quotes.slice((pagina+1)*5, 5+(pagina+1)*5);
+                        let next = res.quotes.length / 5;
+                        
                         callback(res.quotes.slice(pagina*5, 5+pagina*5), next.length);
                     }
                     else{

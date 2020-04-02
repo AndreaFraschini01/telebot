@@ -1,21 +1,20 @@
 require('dotenv').config();
 const Telegraf = require('telegraf');
-const TelegrafInlineMenu = require('telegraf-inline-menu')
+const Markup = require('telegraf/markup');
 var db = require('./database');
+const bot = new Telegraf(process.env.BOT_TOKEN)
 
-const mainMenu = new TelegrafInlineMenu('Main Menu');
-const fooMenu = new TelegrafInlineMenu('Foo Menu');
-const barMenu = new TelegrafInlineMenu('Bar Menu');
- 
-mainMenu.submenu('Open Foo Menu', 'foo', fooMenu);
-fooMenu.submenu('Open Bar Menu', 'bar', barMenu);
-barMenu.simpleButton('Premimi', 'something', {
-    doFunc: (ctx)=> ctx.reply("CULO")
-});
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
+bot.command('list', (ctx)=>{
+    let pagina = {c: 0};
+    try {
+        stampaLista(ctx, pagina);
+    } catch (error) {
+        console.log(error);
+    }
+})
 
-bot.use(mainMenu.init());
+
 
 bot.command('quote', (ctx)=>{
     if(ctx.message.reply_to_message){
@@ -45,30 +44,41 @@ bot.command('quote', (ctx)=>{
     
 });
 
-bot.command('list', (ctx)=>{
-    //console.log(ctx);
-    console.log(ctx.chat.id);
-    var citazioni = db.listaCitazioni(ctx.chat.id, 0,function(citazioni, next){
-        let msg = "";
-        if(citazioni){
-            citazioni.forEach(cit => {
-                msg+=`_${cit.text}_\n- ${cit.author.replace('_', ' ')} ${cit.date}\n\n`;
-            });
-        }
-        else{
-            msg = "Non ci sono citazioni salvate in questa chat";
-        }
-        if(next){
-            msg += "PROSSIMO"
-        }
-        ctx.replyWithMarkdown(msg);
-    });
-});
-
-
-
 bot.help((ctx)=>{
     ctx.reply("Rispondi ad un messaggio col comando /quote per salvare la citazione per i posteri!");
 });
+
+function stampaLista(ctx, pagina){
+    db.listaCitazioni(ctx.chat.id, pagina.c, function(res, next){
+        let msg = "";
+        if(res){
+            res.forEach((cit)=>{
+                msg+=`_${cit.text}_\n- ${cit.author.replace('_', ' ')} ${cit.date}\n\n`;
+            });
+            if(next){
+                const message = ctx.replyWithMarkdown(msg, Markup.inlineKeyboard([
+                    Markup.callbackButton('➡Next', 'next')
+                ]).extra());
+
+                bot.action('next', (ctx)=>{
+                    ctx.deleteMessage(message.message_id);
+                    pagina.c++;
+                    try {
+                        stampaLista(ctx, pagina);
+                    } catch (error) {
+                        console.log(error);
+                    }
+                    
+                })
+            }
+            else{
+                ctx.replyWithMarkdown(msg);
+            }
+        }
+        else{
+            ctx.reply("Non ci sono citazioni salvate in questa chat");
+        }
+    });
+}
 
 bot.launch();
