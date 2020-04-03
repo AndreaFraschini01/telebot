@@ -11,36 +11,30 @@ exports.inserisciCitazione = function (idChat, quote, callback){
             console.log("Connessione al database stabilita");
             var db = client.db(process.env.DB_NAME);
             var groups = db.collection("groups");
-            alreadyExists(quote, function(result){
-                if(result==0){
-                    groups.updateOne({_id: idChat}, 
-                        { 
-                            $push: { 
-                                quotes: {
-                                    text: quote.text,
-                                    author: quote.author, 
-                                    date: quote.date 
-                                } 
-                            } 
-                        }, 
-                        {
-                            upsert: true
-                        }, 
-                        function(err, res){
-                            if(err){
-                                callback(null);
-                            }
-                            else{
-                                callback(result);
-                            }
-                            client.close();
-                        }
-                    );
+            groups.updateOne({_id: idChat}, 
+                { 
+                    $addToSet: { 
+                        quotes: {
+                            text: quote.text,
+                            author: quote.author, 
+                            date: quote.date 
+                        } 
+                    } 
+                }, 
+                {
+                    upsert: true
+                }, 
+                function(err, res){
+                    if(err){
+                        //callback(null);
+                        console.log(err);
+                    }
+                    else{
+                        callback(res.modifiedCount);
+                    }
+                    client.close();
                 }
-                else{
-                    callback(result = null);
-                }
-            })
+            );
         }
     });
 }
@@ -64,9 +58,9 @@ exports.listaCitazioni = function(idChat, pagina, callback){
                 }
                 else{
                     if(res){
-                        let next = res.quotes.length / 5;
+                        let next = (res.quotes.length / 5) > 0;
                         
-                        callback(res.quotes.slice(pagina*5, 5+pagina*5), next.length);
+                        callback(res.quotes.slice(pagina*5, 5+pagina*5), next);
                     }
                     else{
                         callback(null);
@@ -76,34 +70,4 @@ exports.listaCitazioni = function(idChat, pagina, callback){
             });
         }
     });
-}
-
-
-
-function alreadyExists(citazione, callback){
-    var mongoClient = mongodb.MongoClient(process.env.DB_URL, {useUnifiedTopology: true});
-
-    mongoClient.connect(function(err, client){
-        console.log("Controllo nuova citazione...");
-        if (err) {
-            console.log("Impossibile connettersi al database", err);
-        }
-        else{
-            console.log("Connessione al database stabilita");
-            var db = client.db(process.env.DB_NAME);
-            var groups = db.collection("groups");
-            groups.find({ quotes: { $in: [ citazione ]}}).count(function(err, res){
-                if(err){
-                    console.log("Errore nella query count o altro");
-                    callback(null)
-                }
-                else{
-                    console.log(res);
-                    callback(res);
-                }
-            });
-
-        }
-    });
-    // db.groups.find({ quotes: { $in: [ { text: "", author: "", date: "" } ]}}).count()
 }
