@@ -16,7 +16,7 @@ risponde con la citazione. È gestito il caso in cui la citazione sia già stata
 ### comando /list
 
 Il bot risponde con un messaggio contenente tutta la lista delle citazioni
-del gruppo/chat.
+del gruppo/chat a pagine di 5 messaggi. In fase di ottimizzazione.
 
 ### comando /help
 
@@ -24,6 +24,5 @@ Il bot ti dice cosa può fare.
 
 ## Cosa farà
 
-Le citazioni per adesso vengono mostrate tutte se si fa il comando /list
-ma in futurò implementerò la paginazione e aggiungerò magari una funzione
-di ricerca.
+Al momento non ho in mente altri comandi che potrei aggiungere. Per adesso mi sto concentrando
+sull'ottimizzazione dei comandi per evitare rallentamenti e permettere un minimo di scalabilità.
