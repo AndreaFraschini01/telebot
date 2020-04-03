@@ -35,7 +35,7 @@ bot.command('quote', (ctx)=>{
                     ctx.reply("Il messaggio è già stato citato");
                 }
                 else{
-                    ctx.replyWithMarkdown(`_${text}_\n- ${author.replace('_', ' ')} ${data}`);
+                    ctx.replyWithMarkdown(`_${text}_\n- ${author.replace('_', '\\_')} ${data}`);
                 }
             });
         }
@@ -55,11 +55,11 @@ function stampaLista(ctx, pagina){
         let msg = "";
         if(res){
             res.forEach((cit)=>{
-                msg+=`_${cit.text}_\n- ${cit.author.replace('_', ' ')} ${cit.date}\n\n`;
+                msg+=`_${cit.text}_\n•${cit.author.replace('_', '\\_')} ${cit.date}\n\n`;
             });
-            if(next){
+            if(next.continues){
                 const message = ctx.replyWithMarkdown(msg, Markup.inlineKeyboard([
-                    Markup.callbackButton('➡Next', 'next')
+                    Markup.callbackButton(`📖Altre citazioni... (${pagina.c+ 1}/${next.numPages})`, 'next')
                 ]).extra());
 
                 bot.action('next', (ctx)=>{
@@ -75,6 +75,7 @@ function stampaLista(ctx, pagina){
             }
             else{
                 ctx.replyWithMarkdown(msg);
+                pagina.c = 0;
             }
         }
         else{

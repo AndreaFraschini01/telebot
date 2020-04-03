@@ -39,7 +39,7 @@ exports.inserisciCitazione = function (idChat, quote, callback){
     });
 }
 
-
+//Ritorna un array e il
 exports.listaCitazioni = function(idChat, pagina, callback){
     var mongoClient = mongodb.MongoClient(process.env.DB_URL, {useUnifiedTopology: true});
     mongoClient.connect(function(err, client){
@@ -58,9 +58,12 @@ exports.listaCitazioni = function(idChat, pagina, callback){
                 }
                 else{
                     if(res){
-                        let next = (res.quotes.length / 5) > 0;
-                        
-                        callback(res.quotes.slice(pagina*5, 5+pagina*5), next);
+                        let len = res.quotes.length
+                        let next = len - (pagina +1)*5 > 0;
+                        let index = pagina*5;
+                        let numPagine = Math.ceil(len/5.0);
+                        console.log({next:res.quotes.length - (pagina +1)*5, index:index});
+                        callback(res.quotes.slice(index, index+5), {continues: next, numPages:numPagine});
                     }
                     else{
                         callback(null);
