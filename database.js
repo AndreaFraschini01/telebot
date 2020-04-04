@@ -52,18 +52,15 @@ exports.listaCitazioni = function(idChat, pagina, callback){
             var db = client.db(process.env.DB_NAME);
             var groups = db.collection("groups");
             
-            groups.findOne({_id: idChat}, {quotes: true}, function(err, res){
+            groups.find({_id: idChat}).project({_id: 0, quotes: {$slice:[pagina*5, 5]}})
+            .toArray(function(err, res){
                 if(err){
                     console.log(err);
                 }
                 else{
                     if(res){
-                        let len = res.quotes.length
-                        let next = len - (pagina +1)*5 > 0;
-                        let index = pagina*5;
-                        let numPagine = Math.ceil(len/5.0);
-                        console.log({next:res.quotes.length - (pagina +1)*5, index:index});
-                        callback(res.quotes.slice(index, index+5), {continues: next, numPages:numPagine});
+                        console.dir(res);
+                        callback(res.quotes, {continues: true, numPages:5});
                     }
                     else{
                         callback(null);
