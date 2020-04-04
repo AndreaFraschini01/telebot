@@ -8,6 +8,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.command('list', (ctx)=>{
     let pagina = {c: 0};
     db.listaCitazioni(ctx.chat.id, function(res){
+        console.log({quotes_from_db:res});
         if(res.length == 0){
             ctx.reply("Non ci sono citazioni salvate nella chat");
         }
@@ -61,8 +62,10 @@ bot.help((ctx)=>{
 
 function stampaLista(ctx, array, pagina){
     
-    numPages = Math.ceil(array.length/5.0); //Calcola il numero delle pagine
+    let numPages = Math.ceil(array.length/5.0); //Calcola il numero delle pagine
     let sliced = array.slice(pagina.c*5, (pagina.c + 1)*5); //Crea la pagina
+    
+    //console.log(array);
 
     let msg = "";
 
@@ -72,18 +75,17 @@ function stampaLista(ctx, array, pagina){
     });
 
     if(pagina.c+1<numPages){
-
         //Se non sei nell'ultima pagina stampa la lista con il bottone
-        const message = ctx.replyWithMarkdown(msg, Markup.inlineKeyboard([
-            Markup.callbackButton(`📖Altre citazioni... (${pagina.c+ 1}/${numPages})`, 'next')
+        ctx.replyWithMarkdown(msg, Markup.inlineKeyboard([
+            Markup.callbackButton(`📖Altre citazioni... (${pagina.c+ 1}/${numPages})`, 'n')
         ]).extra());
 
-        //Quando si preme il bottone
-        bot.action('next', function(ctx){
+        //Associa il bottone alla funzione
+        bot.action('n', (context)=>{
             //Cancella la pagina precedente
-            ctx.deleteMessage(message.message_id);
+            context.deleteMessage();
             pagina.c++;
-            stampaLista(ctx, array, pagina); //Ripeti finché non sei all'ultima pagina
+            stampaLista(context, array, pagina);
         });
     }
     else{
