@@ -4,6 +4,7 @@ const Markup = require('telegraf/markup');
 var db = require('./database');
 const bot = new Telegraf(process.env.BOT_TOKEN)
 var arraydicitazioni = [];
+let last_message = null;
 
 bot.command('quote', (ctx)=>{
     if(ctx.message.reply_to_message){ //Controlla che il messaggio sia una risposta
@@ -40,25 +41,28 @@ bot.command('quote', (ctx)=>{
     
 });
 
-const tastoNext = Markup.inlineKeyboard([
-    Markup.callbackButton('next', 'n')
-]).extra()
+
 
 bot.command('list', (ctx)=>{
     let pagina = {c: 0};
+    last_message = null;
+
     db.listaCitazioni(ctx.chat.id, function(res){
         arraydicitazioni = res;
-        faiCose(ctx, arraydicitazioni, pagina);
+        stampaLista(ctx, arraydicitazioni, pagina);
     });
 });
 
-
-function faiCose(ctx, bar, page){
-
+async function stampaLista(ctx, bar, page){
     let numPages = Math.ceil(bar.length/5.0); //Calcola il numero delle pagine
     let sliced = bar.slice(page.c*5, (page.c + 1)*5); //Crea la pagina
     
-    console.log(`${page.c+1}/${numPages}`);
+
+    let tastoNext = Markup.inlineKeyboard([
+        Markup.callbackButton(`➡Next 📖${page.c+1}/${numPages}`, 'n')
+    ]).extra();
+    //console.log(tastoNext.reply_markup.inline_keyboard);
+    //console.log(`${page.c+1}/${numPages}`);
 
     let msg = "";
     //Crea il messaggio con la lista delle citazioni
@@ -66,32 +70,37 @@ function faiCose(ctx, bar, page){
         msg+=`_${cit.text}_\n•${cit.author.replace('_', '\\_')} ${cit.date}\n\n`;
     });
 
-    //Madonna che schifo sta roba, però la lascio visto che va
-    try {
+    if(page.c == 0){ //Se è la prima pagina non c'è nessun messaggio da modificare
         if(page.c+1<numPages){
-            ctx.editMessageText(msg, tastoNext);
+            last_message = await ctx.replyWithMarkdown(msg, tastoNext);
         }
         else{
-            console.log("BASTA CAZZO");
-            ctx.editMessageText(msg);
+            last_message = await ctx.replyWithMarkdown(msg);
             page.c = 0; //Resetta il contatore delle pagine
-            arraydicitazioni = []; //Resetta il cristo.
+            arraydicitazioni = [];
         }
-    } catch{
-        if(page.c+1<numPages){
-            ctx.reply(msg, tastoNext);
-        }
-        else{
-            console.log("EIACULAZIONE PRECOCE");
-            ctx.reply(msg);
-            page.c = 0; //Resetta il contatore delle pagine
-            arraydicitazioni = []; //Resetta il cristo.
-        }
+        
     }
-
+    else{
+        if(page.c+1<numPages){
+                ctx.editMessageText(msg, 
+                    { 
+                        message_id: last_message.message_id,
+                        parse_mode: 'Markdown', 
+                        reply_markup: {inline_keyboard: tastoNext.reply_markup.inline_keyboard} 
+                    });
+            }
+            else{
+                
+                ctx.editMessageText(msg, {message_id: last_message.message_id, parse_mode: 'Markdown'});
+                page.c = 0; //Resetta il contatore delle pagine
+                arraydicitazioni = [];
+            }
+    }
+    
     bot.action('n', (contesto)=>{
         page.c++;
-        faiCose(contesto, arraydicitazioni, page);
+        stampaLista(contesto, arraydicitazioni, page);
     });
 }
 
