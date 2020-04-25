@@ -47,28 +47,29 @@ exports.inserisciCitazione = function (idChat, quote, callback){
 }
 
 
-exports.listaCitazioni = function(idChat, callback){
+exports.listaCitazioni = function(idChat, page, callback){
     var mongoClient = mongodb.MongoClient(process.env.DB_URL, {useUnifiedTopology: true});
 
     mongoClient.connect(function(err, client){
-        console.log("Recupero lista citazioni...")
+        //console.log("Recupero lista citazioni...")
         if (err) {
-            console.log("Impossibile connettersi al database", err);
+            //console.log("Impossibile connettersi al database", err);
         }
         else{
-            console.log("Connessione al database stabilita");
+            //console.log("Connessione al database stabilita");
 
             //Ricava la collection
             var db = client.db(process.env.DB_NAME);
             var groups = db.collection("groups");
             
             //Trova un solo record.
-            groups.findOne({_id: idChat}, function(err, res){
-                if (err) {
+            groups.findOne({_id: idChat}, {
+                projection: { _id: false, quotes: {$slice:[page*5, 5]} }
+            }, function(err, res){
+                if(err){
                     console.log(err);
                 }
                 else{
-                    //Ritorna l'array di citazioni
                     callback(res.quotes);
                 }
             });

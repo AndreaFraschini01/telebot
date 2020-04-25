@@ -2,9 +2,7 @@ require('dotenv').config();
 const Telegraf = require('telegraf');
 const Markup = require('telegraf/markup');
 var db = require('./database');
-const bot = new Telegraf(process.env.BOT_TOKEN)
-var arraydicitazioni = [];
-let last_message = null;
+const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.command('quote', (ctx)=>{
     if(ctx.message.reply_to_message){ //Controlla che il messaggio sia una risposta
@@ -41,68 +39,108 @@ bot.command('quote', (ctx)=>{
     
 });
 
-
-
 bot.command('list', (ctx)=>{
-    let pagina = {c: 0};
-    last_message = null;
+    let pagina = 0;
+    db.listaCitazioni(ctx.chat.id, pagina, function(res){
+        // arraydicitazioni = res;
+        // stampaLista(ctx, arraydicitazioni, pagina);
+        let message = "";
 
-    db.listaCitazioni(ctx.chat.id, function(res){
-        arraydicitazioni = res;
-        stampaLista(ctx, arraydicitazioni, pagina);
+        if(res.length > 0){
+            res.forEach(q => {
+                message += `_"${q.text}"_\n•${q.author.replace('_', '\\_')} ${q.date}\n\n`;
+            });
+
+            ctx.reply(message, 
+            {
+                parse_mode: 'Markdown', 
+                reply_markup: {inline_keyboard: [[{text: "Altre cit ➡", callback_data:"next"}]]} 
+            });
+        }
+        else{
+            ctx.reply("Non ci sono citazioni salvate");
+            pagina = 0;
+        }
+    });
+
+    bot.action('next', ctx=>{
+        pagina++;
+        db.listaCitazioni(ctx.chat.id, pagina, function(res){
+            // arraydicitazioni = res;
+            // stampaLista(ctx, arraydicitazioni, pagina);
+            let message = "";
+    
+            if(res.length > 0){
+                res.forEach(q => {
+                    message += `_"${q.text}"_\n•${q.author.replace('_', '\\_')} ${q.date}\n\n`;
+                });
+    
+                ctx.editMessageText(message, 
+                {
+                    parse_mode: 'Markdown', 
+                    reply_markup: {inline_keyboard: [[{text: "Altre cit ➡", callback_data:"next"}]]} 
+                });
+            }
+            else{
+                ctx.editMessageText("🛑FINE🛑");
+                pagina = 0;
+            }
+        });
     });
 });
 
-async function stampaLista(ctx, bar, page){
-    let numPages = Math.ceil(bar.length/5.0); //Calcola il numero delle pagine
-    let sliced = bar.slice(page.c*5, (page.c + 1)*5); //Crea la pagina
+
+
+// async function stampaLista(ctx, bar, page){
+//     let numPages = Math.ceil(bar.length/5.0); //Calcola il numero delle pagine
+//     let sliced = bar.slice(page.c*5, (page.c + 1)*5); //Crea la pagina
     
 
-    let tastoNext = Markup.inlineKeyboard([
-        Markup.callbackButton(`➡Next 📖${page.c+1}/${numPages}`, 'n')
-    ]).extra();
-    //console.log(tastoNext.reply_markup.inline_keyboard);
-    //console.log(`${page.c+1}/${numPages}`);
+//     let tastoNext = Markup.inlineKeyboard([
+//         Markup.callbackButton(`➡Next 📖${page.c+1}/${numPages}`, 'n')
+//     ]).extra();
+//     //console.log(tastoNext.reply_markup.inline_keyboard);
+//     //console.log(`${page.c+1}/${numPages}`);
 
-    let msg = "";
-    //Crea il messaggio con la lista delle citazioni
-    sliced.forEach(cit => {
-        msg+=`_${cit.text}_\n•${cit.author.replace('_', '\\_')} ${cit.date}\n\n`;
-    });
+//     let msg = "";
+//     //Crea il messaggio con la lista delle citazioni
+//     sliced.forEach(cit => {
+//         msg+=`_${cit.text}_\n•${cit.author.replace('_', '\\_')} ${cit.date}\n\n`;
+//     });
 
-    if(page.c == 0){ //Se è la prima pagina non c'è nessun messaggio da modificare
-        if(page.c+1<numPages){
-            last_message = await ctx.replyWithMarkdown(msg, tastoNext);
-        }
-        else{
-            last_message = await ctx.replyWithMarkdown(msg);
-            page.c = 0; //Resetta il contatore delle pagine
-            arraydicitazioni = [];
-        }
+//     if(page.c == 0){ //Se è la prima pagina non c'è nessun messaggio da modificare
+//         if(page.c+1<numPages){
+//             last_message = await ctx.replyWithMarkdown(msg, tastoNext);
+//         }
+//         else{
+//             last_message = await ctx.replyWithMarkdown(msg);
+//             page.c = 0; //Resetta il contatore delle pagine
+//             arraydicitazioni = [];
+//         }
         
-    }
-    else{
-        if(page.c+1<numPages){
-                ctx.editMessageText(msg, 
-                    { 
-                        message_id: last_message.message_id,
-                        parse_mode: 'Markdown', 
-                        reply_markup: {inline_keyboard: tastoNext.reply_markup.inline_keyboard} 
-                    });
-            }
-            else{
+//     }
+//     else{
+//         if(page.c+1<numPages){
+//                 ctx.editMessageText(msg, 
+//                     { 
+//                         message_id: last_message.message_id,
+//                         parse_mode: 'Markdown', 
+//                         reply_markup: {inline_keyboard: tastoNext.reply_markup.inline_keyboard} 
+//                     });
+//             }
+//             else{
                 
-                ctx.editMessageText(msg, {message_id: last_message.message_id, parse_mode: 'Markdown'});
-                page.c = 0; //Resetta il contatore delle pagine
-                arraydicitazioni = [];
-            }
-    }
+//                 ctx.editMessageText(msg, {message_id: last_message.message_id, parse_mode: 'Markdown'});
+//                 page.c = 0; //Resetta il contatore delle pagine
+//                 arraydicitazioni = [];
+//             }
+//     }
     
-    bot.action('n', (contesto)=>{
-        page.c++;
-        stampaLista(contesto, arraydicitazioni, page);
-    });
-}
+//     bot.action('n', (contesto)=>{
+//         page.c++;
+//         stampaLista(contesto, arraydicitazioni, page);
+//     });
+// }
 
 bot.help((ctx)=>{
     let helpmsg="Rispondi ad un messaggio col comando /quote per salvare la citazione per i posteri!\nUtilizza il comando /list per vedere la lista delle citazioni";
