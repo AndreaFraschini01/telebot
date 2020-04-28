@@ -162,8 +162,9 @@ bot.command("lecitdi", ctx=>{
 // }
 
 bot.help((ctx)=>{
-    let helpmsg="Rispondi ad un messaggio col comando /quote per salvare la citazione per i posteri!\nUtilizza il comando /list per vedere la lista delle citazioni";
-    ctx.reply(helpmsg);
+    ctx.replyWithMarkdown("•Rispondi ad un messaggio col comando /quote per salvare la citazione per i posteri!");
+    ctx.replyWithMarkdown("•Utilizza il comando /list per vedere la lista delle citazioni.");
+    ctx.replyWithMarkdown("•Tagga un membro del gruppo dopo il comando /lecitdi per visualizzare tutte le sue citazioni!");
 });
 
 bot.launch();

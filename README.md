@@ -18,11 +18,17 @@ risponde con la citazione. È gestito il caso in cui la citazione sia già stata
 Il bot risponde con un messaggio contenente tutta la lista delle citazioni
 del gruppo/chat a pagine di 5 messaggi. In fase di ottimizzazione.
 
+### comando /lecitdi <@username>
+
+Il bot risponde con un messaggio contenente tutta la lista delle citazioni
+di un utente appartenente al gruppo.
+
 ### comando /help
 
 Il bot ti dice cosa può fare.
 
 ## Cosa farà
 
-Al momento non ho in mente altri comandi che potrei aggiungere. Per adesso mi sto concentrando
-sull'ottimizzazione dei comandi per evitare rallentamenti e permettere un minimo di scalabilità.
+Il bot è in fase di completamento, tra non molto riscriverò
+il codice per renderlo più leggibile ed inizierò lo sviluppo della web app per gestire
+i file di log.
