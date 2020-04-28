@@ -76,3 +76,50 @@ exports.listaCitazioni = function(idChat, page, callback){
         }
     });
 }
+
+
+exports.citazioniUtente = function(idChat, username, callback){
+    var mongoClient = mongodb.MongoClient(process.env.DB_URL, {useUnifiedTopology: true});
+
+    mongoClient.connect(function(err, client){
+        //console.log("Recupero lista citazioni...")
+        if (err) {
+            //console.log("Impossibile connettersi al database", err);
+        }
+        else{
+            //console.log("Connessione al database stabilita");
+
+            //Ricava la collection
+            var db = client.db(process.env.DB_NAME);
+            var groups = db.collection("groups");
+            
+            //Trova un solo record.
+            groups.aggregate([
+                {
+                    $match:{
+                        _id: idChat
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        quotes: {
+                            $filter: {
+                                input: '$quotes',
+                                as: 'quotes',
+                                cond: {$eq: ['$$quotes.author', username]}
+                            }
+                        }
+                    }
+                }
+            ]).toArray(function(err, res){
+                if(err){
+                    console.log(err);
+                }
+                else{
+                    callback(res[0].quotes);
+                }
+            });
+        }
+    });
+}

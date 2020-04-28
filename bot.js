@@ -1,8 +1,11 @@
 require('dotenv').config();
 const Telegraf = require('telegraf');
 const Markup = require('telegraf/markup');
-var db = require('./database');
+const commandParts = require('telegraf-command-parts');
+const db = require('./database');
 const bot = new Telegraf(process.env.BOT_TOKEN);
+
+bot.use(commandParts());
 
 bot.command('quote', (ctx)=>{
     if(ctx.message.reply_to_message){ //Controlla che il messaggio sia una risposta
@@ -89,6 +92,22 @@ bot.command('list', (ctx)=>{
     });
 });
 
+bot.command("lecitdi", ctx=>{
+    console.log(ctx.state.command.args.replace('@', ''));
+    let username = ctx.state.command.args.replace('@', '');
+    db.citazioniUtente(ctx.chat.id, username, function(res){
+        let msg = '';
+        if(res.length > 0){
+            res.forEach(q => {
+                msg += `_"${q.text}"_\n•${q.author.replace('_', '\\_')} ${q.date}\n\n`;
+            });
+            ctx.replyWithMarkdown(msg);
+        }
+        else{
+            ctx.reply("Certo che sei proprio un pezzo di merda a non citare mai");
+        }
+    });
+});
 
 
 // async function stampaLista(ctx, bar, page){
