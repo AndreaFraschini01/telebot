@@ -70,7 +70,8 @@ exports.listaCitazioni = function(idChat, page, callback){
                     console.log(err);
                 }
                 else{
-                    callback(res.quotes);
+                    if(res) callback(res.quotes);
+                    else callback(null);
                 }
             });
         }
@@ -114,7 +115,7 @@ exports.citazioniUtente = function(idChat, username, callback){
                 }
             ]).toArray(function(err, res){
                 if(err){
-                    console.log(err);
+                    callback(null);
                 }
                 else{
                     callback(res[0].quotes);

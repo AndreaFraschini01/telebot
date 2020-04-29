@@ -1,13 +1,15 @@
 require('dotenv').config();
 const Telegraf = require('telegraf');
-const Markup = require('telegraf/markup');
 const commandParts = require('telegraf-command-parts');
 const db = require('./database');
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.use(commandParts());
-
+bot.command('/start', ctx=>{
+    ctx.reply("Ciao! Sono il bot delle citazioni super simpy! Ricordati di darmi i pieni poteri e i mezzi di produzione se no io i messaggi come li vedo eeeh?");
+});
 bot.command('quote', (ctx)=>{
+    console.log(ctx.message.reply_to_message);
     if(ctx.message.reply_to_message){ //Controlla che il messaggio sia una risposta
         //Ricava le informazioni che interessano (messaggio, mittente, data e id della chat)
         let {text, from, date, chat} = ctx.message.reply_to_message;
@@ -36,8 +38,8 @@ bot.command('quote', (ctx)=>{
             });
         }
     }else{
-        //Gestione caso in cui il messaggio non sia una risposta
-        ctx.reply("Si, ma linka un messagio bro");
+        //Gestione caso in cui il messaggio non sia una risposta oppure il bot non ha i permessi
+        ctx.reply("Si ma linka un messaggio bro");
     }
     
 });
@@ -47,22 +49,29 @@ bot.command('list', (ctx)=>{
     db.listaCitazioni(ctx.chat.id, pagina, function(res){
         // arraydicitazioni = res;
         // stampaLista(ctx, arraydicitazioni, pagina);
-        let message = "";
+        if(res){
+            let message = "";
 
-        if(res.length > 0){
-            res.forEach(q => {
-                message += `_"${q.text}"_\n•${q.author.replace('_', '\\_')} ${q.date}\n\n`;
-            });
+            if(res.length > 0){
+                res.forEach(q => {
+                    message += `_"${q.text}"_\n•${q.author.replace('_', '\\_')} ${q.date}\n\n`;
+                });
 
-            ctx.reply(message, 
-            {
-                parse_mode: 'Markdown', 
-                reply_markup: {inline_keyboard: [[{text: "Altre cit ➡", callback_data:"next"}]]} 
-            });
+                ctx.reply(message, 
+                {
+                    parse_mode: 'Markdown', 
+                    reply_markup: {inline_keyboard: [[{text: "Altre cit ➡", callback_data:"next"}]]} 
+                });
+            }
+            else{
+                console.log("Res è qualcosa ma non ci sono citazioni");
+                ctx.reply("Non ci sono citazioni salvate");
+                pagina = 0;
+            }
         }
         else{
-            ctx.reply("Non ci sono citazioni salvate");
-            pagina = 0;
+            console.log("Res non è qualcosa");
+            ctx.reply("Non ci sono citazioni salvate in questa chat");
         }
     });
 
@@ -96,15 +105,20 @@ bot.command("lecitdi", ctx=>{
     console.log(ctx.state.command.args.replace('@', ''));
     let username = ctx.state.command.args.replace('@', '');
     db.citazioniUtente(ctx.chat.id, username, function(res){
-        let msg = '';
-        if(res.length > 0){
-            res.forEach(q => {
-                msg += `_"${q.text}"_\n•${q.author.replace('_', '\\_')} ${q.date}\n\n`;
-            });
-            ctx.replyWithMarkdown(msg);
+        if(res){
+            let msg = '';
+            if(res.length > 0){
+                res.forEach(q => {
+                    msg += `_"${q.text}"_\n•${q.author.replace('_', '\\_')} ${q.date}\n\n`;
+                });
+                ctx.replyWithMarkdown(msg);
+            }
+            else{
+                ctx.reply("Certo che sei proprio un pezzo di merda a non citare mai");
+            }
         }
         else{
-            ctx.reply("Certo che sei proprio un pezzo di merda a non citare mai");
+            ctx.reply("ERROREE");
         }
     });
 });
