@@ -36,8 +36,8 @@ exports.inserisciCitazione = function (idChat, quote, callback){
                         console.log(err);
                     }
                     else{
-                        //Ritorna il numero di record modificati
-                        callback(res.modifiedCount);
+                        //Ritorna il numero di documenti aggiunti e il numero di record modificati
+                        callback(res.upsertedCount, res.modifiedCount);
                     }
                     client.close();
                 }
@@ -118,9 +118,11 @@ exports.citazioniUtente = function(idChat, username, callback){
                     callback(null);
                 }
                 else{
-                    callback(res[0].quotes);
+                    if(res) callback(res[0].quotes);
+                    else callback(null);
                 }
             });
         }
+        client.close();
     });
 }
