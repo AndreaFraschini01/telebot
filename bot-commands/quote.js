@@ -2,7 +2,6 @@
 
 module.exports = (bot, db)=>{
     bot.command('quote', (ctx)=>{
-        ctx.reply("hai la mamma troia");
         if(ctx.message.reply_to_message){ //Controlla che il messaggio sia una risposta
             //Ricava le informazioni che interessano (messaggio, mittente, data e id della chat)
             let {text, from, date, chat} = ctx.message.reply_to_message;

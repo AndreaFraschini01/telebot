@@ -115,14 +115,19 @@ exports.citazioniUtente = function(idChat, username, callback){
                 }
             ]).toArray(function(err, res){
                 if(err){
+                    console.log(err);
                     callback(null);
                 }
                 else{
-                    if(res) callback(res[0].quotes);
-                    else callback(null);
+                    if(res){ 
+                        callback(res[0].quotes);
+                    }
+                    else{
+                        callback(null);
+                    }
                 }
+                client.close();
             });
         }
-        client.close();
     });
 }

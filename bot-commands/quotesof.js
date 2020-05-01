@@ -3,9 +3,10 @@
 module.exports = (bot, db)=>{
     bot.command("quotesof", ctx=>{
         let username = ctx.state.command.args.replace('@', '');
+        console.log("quotes of:",username);
         db.citazioniUtente(ctx.chat.id, username, function(res){
             if(res){
-                let msg = `_TUTTE LE PERLE DI ${username.replace('_', '\\_')}_\n`;
+                let msg = `💥*TUTTE LE PERLE DI ${username}*💥\n\n`;
                 if(res.length > 0){
                     res.forEach(q => {
                         msg += `_"${q.text}"_\n•${q.author.replace('_', '\\_')} ${q.date}\n\n`;
