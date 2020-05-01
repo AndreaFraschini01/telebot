@@ -1,3 +1,6 @@
+// Comando che ritorna una lista paginata contenente tutte le citazioni di una chat
+// NOTA: il codice contiene ripetizioni, però bot.action dà problemi con i metodi
+
 module.exports = (bot, db)=>{
     bot.command('list', (ctx)=>{
         let pagina = 0;

@@ -1,3 +1,5 @@
+// Comando che ritorna una lista NON paginata di citazioni di un particolare utente
+
 module.exports = (bot, db)=>{
     bot.command("quotesof", ctx=>{
         let username = ctx.state.command.args.replace('@', '');

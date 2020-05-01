@@ -1,5 +1,4 @@
-
-
+// Comando che ritorna il messaggio iniziale
 
 module.exports = (bot)=>{
     bot.command('/start', ctx=>{
