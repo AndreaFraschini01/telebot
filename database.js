@@ -5,13 +5,12 @@ exports.inserisciCitazione = function (idChat, quote, callback){
     var mongoClient = mongodb.MongoClient(process.env.DB_URL, {useUnifiedTopology: true});
 
     mongoClient.connect(function(err, client){
-        console.log("Inserimento citazione: collegamento...")
 
         if (err) {
-            console.log("Impossibile connettersi al database", err);
+            let timestamp = new Date().toLocaleString();
+            console.log(`(${timestamp}): ${err}`);
         }
         else{
-            console.log("Connessione al database stabilita");
             //Ricava la collection
             var db = client.db(process.env.DB_NAME);
             var groups = db.collection("groups");
@@ -32,8 +31,8 @@ exports.inserisciCitazione = function (idChat, quote, callback){
                 }, 
                 function(err, res){
                     if(err){
-                        //callback(null);
-                        console.log(err);
+                        let timestamp = new Date().toLocaleString();
+                        console.log(`(${timestamp}): ${err}`);
                     }
                     else{
                         //Ritorna il numero di documenti aggiunti e il numero di record modificati
@@ -53,7 +52,8 @@ exports.listaCitazioni = function(idChat, page, callback){
     mongoClient.connect(function(err, client){
         //console.log("Recupero lista citazioni...")
         if (err) {
-            //console.log("Impossibile connettersi al database", err);
+            let timestamp = new Date().toLocaleString();
+            console.log(`(${timestamp}): ${err}`);
         }
         else{
             //console.log("Connessione al database stabilita");
@@ -67,7 +67,8 @@ exports.listaCitazioni = function(idChat, page, callback){
                 projection: { _id: false, quotes: {$slice:[page*5, 5]} }
             }, function(err, res){
                 if(err){
-                    console.log(err);
+                    let timestamp = new Date().toLocaleString();
+                    console.log(`(${timestamp}): ${err}`);
                 }
                 else{
                     if(res) callback(res.quotes);
@@ -85,7 +86,8 @@ exports.citazioniUtente = function(idChat, username, callback){
     mongoClient.connect(function(err, client){
         //console.log("Recupero lista citazioni...")
         if (err) {
-            //console.log("Impossibile connettersi al database", err);
+            let timestamp = new Date().toLocaleString();
+            console.log(`(${timestamp}): ${err}`);
         }
         else{
             //console.log("Connessione al database stabilita");
@@ -115,7 +117,8 @@ exports.citazioniUtente = function(idChat, username, callback){
                 }
             ]).toArray(function(err, res){
                 if(err){
-                    console.log(err);
+                    let timestamp = new Date().toLocaleString();
+                    console.log(`(${timestamp}): ${err}`);
                     callback(null);
                 }
                 else{
